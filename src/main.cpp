@@ -10,35 +10,41 @@ using std::string;
 
 static bool running = true;
 
-static const char* EXIT_COMMAND_NAME = "exit";
+static const char* EXIT_CMD_NAME = "exit";
+static const char* ECHO_CMD_NAME = "echo";
 
 struct Command
 {
     string command_name;
+    string tail;
 };
 
 Command parseInput(string input)
 {
-    string commandName;
+    Command cmd = {};
     int idx = input.find_first_of(" ");
     if (idx != string::npos)
     {
-        commandName = input.substr(0, idx + 1);
+        cmd.command_name = input.substr(0, idx);
+        cmd.tail = input.substr(idx + 1);
     }
     else
     {
-        commandName = input;
+        cmd.command_name = input;
     }
 
-    Command cmd = {commandName};
     return cmd;
 }
 
 void HandleCommand(Command cmd)
 {
-    if (cmd.command_name == EXIT_COMMAND_NAME)
+    if (cmd.command_name == EXIT_CMD_NAME)
     {
         running = false;
+    }
+    else if (cmd.command_name == ECHO_CMD_NAME)
+    {
+        cout << cmd.tail << endl;
     }
     else
     {
