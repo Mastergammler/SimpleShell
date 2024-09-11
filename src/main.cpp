@@ -8,19 +8,17 @@ using std::endl;
 using std::getline;
 using std::string;
 
-int main()
+static bool running = true;
+
+static const char* EXIT_COMMAND_NAME = "exit";
+
+struct Command
 {
-    // Flush after every std::cout / std:cerr
-    // TODO: why would you do this? Ease of use? Seems a bit odd
-    std::cout << std::unitbuf;
-    std::cerr << std::unitbuf;
+    string command_name;
+};
 
-    // Uncomment this block to pass the first stage
-    cout << "$ ";
-
-    string input;
-    getline(cin, input);
-
+Command parseInput(string input)
+{
     string commandName;
     int idx = input.find_first_of(" ");
     if (idx != string::npos)
@@ -32,5 +30,41 @@ int main()
         commandName = input;
     }
 
-    cout << commandName << ": command not found" << endl;
+    Command cmd = {commandName};
+    return cmd;
+}
+
+void HandleCommand(Command cmd)
+{
+    if (cmd.command_name == EXIT_COMMAND_NAME)
+    {
+        running = false;
+    }
+    else
+    {
+        cout << cmd.command_name << ": command not found" << endl;
+    }
+}
+
+void repl()
+{
+    cout << "$ ";
+
+    string input;
+    getline(cin, input);
+    Command cmd = parseInput(input);
+    HandleCommand(cmd);
+}
+
+int main()
+{
+    // Flush after every std::cout / std:cerr
+    // TODO: why would you do this? Ease of use? Seems a bit odd
+    std::cout << std::unitbuf;
+    std::cerr << std::unitbuf;
+
+    while (running)
+    {
+        repl();
+    }
 }
