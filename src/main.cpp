@@ -1,54 +1,24 @@
-#include <iostream>
-#include <string>
+#include "commands.cpp"
+#include "types.h"
 
-using std::cerr;
-using std::cin;
-using std::cout;
-using std::endl;
-using std::getline;
-using std::string;
-
-static bool running = true;
-
-static const char* EXIT_CMD_NAME = "exit";
-static const char* ECHO_CMD_NAME = "echo";
-
-struct Command
+void InitBuiltins()
 {
-    string command_name;
-    string tail;
-};
-
-Command parseInput(string input)
-{
-    Command cmd = {};
-    int idx = input.find_first_of(" ");
-    if (idx != string::npos)
-    {
-        cmd.command_name = input.substr(0, idx);
-        cmd.tail = input.substr(idx + 1);
-    }
-    else
-    {
-        cmd.command_name = input;
-    }
-
-    return cmd;
+    BuiltinCommands["exit"] = Builtin_Exit;
+    BuiltinCommands["echo"] = Builtin_Echo;
+    BuiltinCommands["type"] = Builtin_Type;
 }
 
 void HandleCommand(Command cmd)
 {
-    if (cmd.command_name == EXIT_CMD_NAME)
+    auto it = BuiltinCommands.find(cmd.command_name);
+
+    if (it != BuiltinCommands.end())
     {
-        running = false;
-    }
-    else if (cmd.command_name == ECHO_CMD_NAME)
-    {
-        cout << cmd.tail << endl;
+        it->second(cmd);
     }
     else
     {
-        cout << cmd.command_name << ": command not found" << endl;
+        NotFound(cmd);
     }
 }
 
@@ -58,7 +28,9 @@ void repl()
 
     string input;
     getline(cin, input);
-    Command cmd = parseInput(input);
+
+    Split s = split_next(input, ' ');
+    Command cmd = {s.head, s.tail};
     HandleCommand(cmd);
 }
 
@@ -68,6 +40,8 @@ int main()
     // TODO: why would you do this? Ease of use? Seems a bit odd
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
+
+    InitBuiltins();
 
     while (running)
     {

@@ -9,14 +9,18 @@ OPTIONS="-std=c++03 -Wall"
 T_START=$(date +%s%N)
 
 clang++ $SOURCE_FILE -o $OUTPUT_FILE $OPTIONS
+COMPILE_STATUS=$?
 
 T_END=$(date +%s%N)
 
 CST_NANO_TO_MS=1000000
 T_ELAPSED=$(((T_END - T_START)/ $CST_NANO_TO_MS))
 
-echo "************************"
-echo "   Compile :: $T_ELAPSED ms "
-echo "************************"
+if [ $COMPILE_STATUS -eq 0 ]; then
 
-$OUTPUT_FILE
+    echo "************************"
+    echo "   Compile :: $T_ELAPSED ms "
+    echo "************************"
+
+    $OUTPUT_FILE
+fi
