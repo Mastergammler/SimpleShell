@@ -1,3 +1,5 @@
+#pragma once
+
 #include <map>
 #include <string>
 
@@ -15,6 +17,7 @@ typedef void (*CommandAction)(Command);
 void Builtin_Exit(Command cmd);
 void Builtin_Echo(Command cmd);
 void Builtin_Type(Command cmd);
+void Builtin_Help(Command cmd);
 void NotFound(Command cmd);
 
 static map<string, CommandAction> BuiltinCommands;

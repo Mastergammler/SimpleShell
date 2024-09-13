@@ -1,12 +1,6 @@
 #include "commands.cpp"
+#include "startup.cpp"
 #include "types.h"
-
-void InitBuiltins()
-{
-    BuiltinCommands["exit"] = Builtin_Exit;
-    BuiltinCommands["echo"] = Builtin_Echo;
-    BuiltinCommands["type"] = Builtin_Type;
-}
 
 void HandleCommand(Command cmd)
 {
@@ -41,7 +35,8 @@ int main()
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 
-    InitBuiltins();
+    Init_Builtins();
+    Init_Path();
 
     while (running)
     {

@@ -26,6 +26,23 @@ void Builtin_Type(Command cmd)
     }
 }
 
+void Builtin_Help(Command cmd)
+{
+    cout << "The following builtins are available:\n";
+
+    for (auto it = BuiltinCommands.begin(); it != BuiltinCommands.end(); ++it)
+    {
+        cout << " -> " << it->first << " is a shell builtin\n";
+    }
+
+    cout << "Bin paths are:\n";
+
+    for (int i = 0; i < binPaths.size(); i++)
+    {
+        cout << "  " << binPaths[i] << "\n";
+    }
+}
+
 void NotFound(Command cmd)
 {
     cout << cmd.command_name << ": command not found" << endl;
