@@ -24,7 +24,8 @@ Split split_next(string input, char sep)
 
 // not sure if this is correct for both windows and unix
 // but should be sufficient
-const int PATH_MAX = 4096;
+// -> this is already there from dirent.h
+// const int PATH_MAX = 4096;
 
 /**
  * Expects a '\0' terminated string,

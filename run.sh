@@ -4,7 +4,7 @@ OUTPUT_DIR=".build"
 OUTPUT_FILE="$OUTPUT_DIR/shell"
 SOURCE_FILE="src/main.cpp"
 
-OPTIONS="-std=c++03 -Wall"
+OPTIONS="-std=c++03 -Wall -Wno-c++11-extensions"
 
 T_START=$(date +%s%N)
 
