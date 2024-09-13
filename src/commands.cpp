@@ -12,6 +12,21 @@ void Builtin_Echo(Command cmd)
     cout << cmd.tail << endl;
 }
 
+const char* program_path(string name)
+{
+    for (int i = 0; i < binPaths.size(); i++)
+    {
+        const char* curPath = binPaths[i];
+
+        if (file_exists(curPath, name.c_str()))
+        {
+            return curPath;
+        }
+    }
+
+    return NULL;
+}
+
 void Builtin_Type(Command cmd)
 {
     Split next = split_next(cmd.tail, ' ');
@@ -25,18 +40,15 @@ void Builtin_Type(Command cmd)
     }
     else
     {
-        for (int i = 0; i < binPaths.size(); i++)
+        const char* foundPath = program_path(arg1);
+        if (foundPath != NULL)
         {
-            const char* curPath = binPaths[i];
-
-            if (file_exists(curPath, arg1.c_str()))
-            {
-                cout << arg1 << " is " << curPath << "/" << arg1 << endl;
-                return;
-            }
+            cout << arg1 << " is " << foundPath << "/" << arg1 << endl;
         }
-
-        cout << arg1 << ": not found" << endl;
+        else
+        {
+            cout << arg1 << ": not found" << endl;
+        }
     }
 }
 

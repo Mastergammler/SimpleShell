@@ -10,6 +10,11 @@ void HandleCommand(Command cmd)
     {
         it->second(cmd);
     }
+    else if (program_path(cmd.command_name) != NULL)
+    {
+        string completeCmd = cmd.command_name + " " + cmd.tail;
+        system(completeCmd.c_str());
+    }
     else
     {
         NotFound(cmd);
