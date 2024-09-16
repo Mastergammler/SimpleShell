@@ -33,6 +33,7 @@
 *.out
 *.app
 server
+.codecrafters
 
 # CMake
 CMakeLists.txt.user
