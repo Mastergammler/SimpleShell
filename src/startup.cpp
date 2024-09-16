@@ -8,6 +8,8 @@ void Init_Builtins()
     BuiltinCommands["echo"] = Builtin_Echo;
     BuiltinCommands["type"] = Builtin_Type;
     BuiltinCommands["help"] = Builtin_Help;
+    BuiltinCommands["pwd"] = Builtin_Pwd;
+    BuiltinCommands["cd"] = Builtin_Cd;
 }
 
 void Init_Path()

@@ -23,7 +23,7 @@ void HandleCommand(Command cmd)
 
 void repl()
 {
-    cout << "$ ";
+    cout << get_working_directory() << " # ";
 
     string input;
     getline(cin, input);

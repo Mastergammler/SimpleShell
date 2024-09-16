@@ -4,10 +4,21 @@
 
 #include "types.h"
 
-Split split_next(string input, char sep)
+bool contains(string input, char c)
+{
+    int idx = input.find_first_of(c);
+    return idx != string::npos;
+}
+
+bool starts_with(string input, char c)
+{
+    if (input.length() <= 0) return false;
+    return input[0] == c;
+}
+
+Split split_at(int idx, string input)
 {
     Split split = {};
-    int idx = input.find_first_of(sep);
     if (idx != string::npos)
     {
         split.head = input.substr(0, idx);
@@ -20,6 +31,29 @@ Split split_next(string input, char sep)
     }
 
     return split;
+}
+
+Split split_next(string input, char sep)
+{
+    int idx = input.find_first_of(sep);
+    return split_at(idx, input);
+}
+
+Split split_last(string input, char sep)
+{
+    int idx = input.find_last_of(sep);
+    return split_at(idx, input);
+}
+
+Split split_file_name(string input)
+{
+    int sep1 = input.find_last_of('/');
+    int sep2 = input.find_last_of('\\');
+
+    if (sep1 > sep2)
+        return split_at(sep1, input);
+    else
+        return split_at(sep2, input);
 }
 
 // not sure if this is correct for both windows and unix

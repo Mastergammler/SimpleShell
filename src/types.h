@@ -1,16 +1,20 @@
 #pragma once
 
 #include "commands.h"
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <errno.h>
 #include <iostream>
 #include <map>
 #include <vector>
 
-// POSIX headers
+/**
+ * UNIX Headers
+ */
 #include <dirent.h>
-#include <errno.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 using std::cerr;
 using std::cin;

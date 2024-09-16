@@ -1,6 +1,8 @@
 #include "filesystem.cpp"
 #include "parsing.cpp"
 #include "types.h"
+#include <cstdio>
+#include <unistd.h>
 
 void Builtin_Exit(Command cmd)
 {
@@ -66,6 +68,42 @@ void Builtin_Help(Command cmd)
     for (int i = 0; i < binPaths.size(); i++)
     {
         cout << "  " << binPaths[i] << "\n";
+    }
+}
+
+void Builtin_Pwd(Command cmd)
+{
+    cout << get_working_directory() << "\n";
+}
+
+// TODO: feature, soft autocomplete
+//-> check the dirs, if it has one starting with that letters etc
+//-> like closest matches etc
+void Builtin_Cd(Command cmd)
+{
+    const char* dir = cmd.tail.c_str();
+    if (starts_with(cmd.tail, '~'))
+    {
+        // TEST: same on windows?
+        const char* homeDir = getenv("HOME");
+        dir = cmd.tail.replace(0, 1, homeDir).c_str();
+    }
+
+    if (dir_exists(dir))
+    {
+        change_working_directory(dir);
+    }
+    else
+    {
+        Split fileSplit = split_file_name(dir);
+        if (file_exists(fileSplit))
+        {
+            cout << dir << ": Is a file!\n";
+        }
+        else
+        {
+            cout << dir << ": No such file or directory\n";
+        }
     }
 }
 

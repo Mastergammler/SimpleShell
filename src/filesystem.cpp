@@ -1,5 +1,4 @@
 #include "types.h"
-#include <sys/stat.h>
 
 bool is_executable(const char* path, const char* fileName)
 {
@@ -36,4 +35,48 @@ bool file_exists(const char* path, const char* fileName)
 
     closedir(dir);
     return false;
+}
+
+// TODO: if i think it exists directly, can't i check it directly?
+//-> do i really need to iterate through all the directories?
+bool file_exists(Split split)
+{
+    return file_exists(split.head.c_str(), split.tail.c_str());
+}
+
+bool dir_exists(const char* absolutePath)
+{
+    DIR* dir = opendir(absolutePath);
+    if (dir == NULL)
+    {
+        return false;
+    }
+
+    closedir(dir);
+    return true;
+}
+
+/**
+ * CROSS PLATFORM
+ * windows: <direct.h> -> _getcwd / _chdir
+ * Unix: <unistd.h> getcwd / chdir
+ */
+
+string get_working_directory()
+{
+    char buffer[FILENAME_MAX];
+    if (getcwd(buffer, FILENAME_MAX) == NULL)
+    {
+        cout << "Unable to determine working directory\n";
+        return string();
+    }
+    else
+    {
+        return string(buffer);
+    }
+}
+
+void change_working_directory(string path)
+{
+    chdir(path.c_str());
 }
