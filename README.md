@@ -22,4 +22,3 @@
 - [ ] Windows filesystem handling
 - [ ] Windows read key handling
 - [ ] Windows env variable handling
-
