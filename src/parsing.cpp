@@ -16,6 +16,12 @@ bool starts_with(string input, char c)
     return input[0] == c;
 }
 
+bool starts_with(string input, string startSequence)
+{
+    int cmpResult = input.compare(0, startSequence.length(), startSequence);
+    return cmpResult == 0;
+}
+
 Split split_at(int idx, string input)
 {
     Split split = {};
@@ -45,7 +51,7 @@ Split split_last(string input, char sep)
     return split_at(idx, input);
 }
 
-Split split_file_name(string input)
+Split split_last_path(string input)
 {
     int sep1 = input.find_last_of('/');
     int sep2 = input.find_last_of('\\');

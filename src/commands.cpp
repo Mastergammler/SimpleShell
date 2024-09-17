@@ -1,8 +1,5 @@
-#include "filesystem.cpp"
-#include "parsing.cpp"
+#include "autocomplete.cpp"
 #include "types.h"
-#include <cstdio>
-#include <unistd.h>
 
 void Builtin_Exit(Command cmd)
 {
@@ -84,25 +81,27 @@ void Builtin_Cd(Command cmd)
     const char* dir = cmd.tail.c_str();
     if (starts_with(cmd.tail, '~'))
     {
-        // TEST: same on windows?
-        const char* homeDir = getenv("HOME");
-        dir = cmd.tail.replace(0, 1, homeDir).c_str();
+        dir = cmd.tail.replace(0, 1, get_home_dir()).c_str();
     }
 
+    // TODO: this seems like custom generalized path completion logic
+    //  -> ill need to separate these somewhere
+    //  => To have this not all bound to the cd command
     if (dir_exists(dir))
     {
         change_working_directory(dir);
     }
     else
     {
-        Split fileSplit = split_file_name(dir);
+        Split fileSplit = split_last_path(dir);
         if (file_exists(fileSplit))
         {
             cout << dir << ": Is a file!\n";
         }
         else
         {
-            cout << dir << ": No such file or directory\n";
+            if (!check_suggestions(dir))
+                cout << dir << ": No such file or directory\n";
         }
     }
 }
