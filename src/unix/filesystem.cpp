@@ -1,4 +1,4 @@
-#include "parsing.cpp"
+#include "../parsing.cpp"
 #include "types.h"
 
 bool is_executable(const char* path, const char* fileName)

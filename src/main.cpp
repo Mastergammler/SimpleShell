@@ -1,6 +1,7 @@
 #include "commands.cpp"
 #include "startup.cpp"
 #include "types.h"
+#include "unix/terminal.cpp"
 
 void HandleCommand(Command cmd)
 {
@@ -21,12 +22,54 @@ void HandleCommand(Command cmd)
     }
 }
 
+string read_input()
+{
+    string input;
+
+    while (true)
+    {
+        char c = unix_getch();
+        if (c == '\n')
+        {
+            cout << endl;
+            break;
+        }
+
+        // DEL & BACKSPACE
+        else if (c == 127 || c == 0)
+        {
+            // FIXME: deeply flawed, beacuse messes up screen manipulation
+            //- when moving with cursor, because then it'll never be empty
+            if (!input.empty())
+            {
+                input.erase(input.length() - 1);
+                // moving cursor position
+                cout << "\b \b";
+            }
+        }
+        // TAB
+        else if (c == 9)
+        {
+            string completion = " it's magic ";
+            cout << completion;
+            input += completion;
+        }
+        // TODO: handle arrow keys -> to not move off the line
+        else
+        {
+            input += c;
+            cout << c;
+        }
+    }
+
+    return input;
+}
+
 void repl()
 {
     cout << get_working_directory() << " # ";
 
-    string input;
-    getline(cin, input);
+    string input = read_input();
 
     Split s = split_next(input, ' ');
     Command cmd = {s.head, s.tail};

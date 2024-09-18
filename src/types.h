@@ -9,12 +9,7 @@
 #include <map>
 #include <vector>
 
-/**
- * UNIX Headers
- */
-#include <dirent.h>
-#include <sys/stat.h>
-#include <unistd.h>
+const int PATH_MAX = 4096;
 
 using std::cerr;
 using std::cin;

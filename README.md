@@ -7,9 +7,10 @@
 **Todo**
 *Autocomplete*
 - [x] relative paths
+- [x] Tab autocomplete loop
 - [ ] case insensitive path match
-- [ ] Tab autocomplete loop
-- [ ] Autocomplete on all paths
+- [ ] Autocomplete on tab
+    - [ ] Handle realtive paths
 
 *Windows*
 - [ ] Windows build setup
