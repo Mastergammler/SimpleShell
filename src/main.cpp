@@ -3,6 +3,9 @@
 #include "types.h"
 #include "unix/terminal.cpp"
 
+static vector<string> history;
+static int historyIndex;
+
 void HandleCommand(Command cmd)
 {
     auto it = BuiltinCommands.find(cmd.command_name);
@@ -22,9 +25,44 @@ void HandleCommand(Command cmd)
     }
 }
 
+string get_previous_entry()
+{
+    if (history.size() == 0) return "";
+
+    // get 'stuck' at earliest element
+    historyIndex--;
+    if (historyIndex < 0)
+    {
+        historyIndex = 0;
+    }
+
+    return history[historyIndex];
+}
+
+string get_next_entry()
+{
+    historyIndex++;
+    if (historyIndex >= history.size())
+    {
+        historyIndex = history.size();
+        return "";
+    }
+    return history[historyIndex];
+}
+
+void clear_characters(int amount)
+{
+    for (int i = 0; i < amount; i++)
+    {
+        // clears 1 character & moves cursor position
+        cout << "\b \b";
+    }
+}
+
 string read_input()
 {
     string input;
+    historyIndex = history.size();
 
     while (true)
     {
@@ -34,27 +72,58 @@ string read_input()
             cout << endl;
             break;
         }
+        // handle arrow keys
+        else if (c == 27)
+        {
+            // termios returns a secape sequence instead of single characters
+            char seq[3];
+            seq[0] = unix_getch();
+            seq[1] = unix_getch();
+            seq[2] = '\0';
 
+            if (seq[0] == '[')
+            {
+                switch (seq[1])
+                {
+                    case 'A':
+                        clear_characters(input.length());
+                        input = get_previous_entry();
+                        cout << input;
+                        break;
+                    case 'B':
+                        clear_characters(input.length());
+                        input = get_next_entry();
+                        cout << input;
+                        break;
+                    case 'C':
+                        // right: do nothing
+                        break;
+                    case 'D':
+                        // left: do nothing
+                        break;
+                }
+            }
+        }
         // DEL & BACKSPACE
         else if (c == 127 || c == 0)
         {
-            // FIXME: deeply flawed, beacuse messes up screen manipulation
-            //- when moving with cursor, because then it'll never be empty
             if (!input.empty())
             {
                 input.erase(input.length() - 1);
-                // moving cursor position
-                cout << "\b \b";
+                clear_characters(1);
             }
         }
         // TAB
         else if (c == 9)
         {
+            // TODO: get actual file completion
+            //- based on current input
+            //- parse out the path till here
+            //- get the next entries
             string completion = " it's magic ";
             cout << completion;
             input += completion;
         }
-        // TODO: handle arrow keys -> to not move off the line
         else
         {
             input += c;
@@ -70,6 +139,7 @@ void repl()
     cout << get_working_directory() << " # ";
 
     string input = read_input();
+    history.push_back(input);
 
     Split s = split_next(input, ' ');
     Command cmd = {s.head, s.tail};

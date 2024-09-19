@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <iostream>
 #include <map>
+#include <stack>
 #include <vector>
 
 const int PATH_MAX = 4096;
@@ -18,6 +19,7 @@ using std::endl;
 using std::getenv;
 using std::getline;
 using std::pair;
+using std::stack;
 using std::vector;
 
 static bool running = true;
