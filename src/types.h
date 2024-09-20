@@ -30,3 +30,9 @@ struct Split
     string head;
     string tail;
 };
+
+struct PathSplit
+{
+    string path;
+    string file_name;
+};

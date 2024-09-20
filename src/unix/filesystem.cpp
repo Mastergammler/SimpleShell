@@ -56,6 +56,20 @@ vector<string> find_entries(const char* path, string startingWith)
     return entries;
 }
 
+string find_next_entry(const char* path, string startingWith)
+{
+    DIR* dir = opendir(path);
+    if (dir == NULL) return "";
+
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (starts_with(entry->d_name, startingWith)) return entry->d_name;
+    }
+
+    return "";
+}
+
 // TODO: if i think it exists directly, can't i check it directly?
 //-> do i really need to iterate through all the directories?
 bool file_exists(Split split)

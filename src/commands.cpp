@@ -100,7 +100,7 @@ void Builtin_Cd(Command cmd)
         }
         else
         {
-            if (!check_suggestions(dir))
+            if (!print_suggestions(dir))
                 cout << dir << ": No such file or directory\n";
         }
     }

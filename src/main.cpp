@@ -73,6 +73,7 @@ string read_input()
             break;
         }
         // handle arrow keys
+        // TODO: switch for windows
         else if (c == 27)
         {
             // termios returns a secape sequence instead of single characters
@@ -116,13 +117,12 @@ string read_input()
         // TAB
         else if (c == 9)
         {
-            // TODO: get actual file completion
-            //- based on current input
-            //- parse out the path till here
-            //- get the next entries
-            string completion = " it's magic ";
+            // we replace the whole input string
+            string completion = get_completion(input);
+            clear_characters(input.length());
+
             cout << completion;
-            input += completion;
+            input = completion;
         }
         else
         {
