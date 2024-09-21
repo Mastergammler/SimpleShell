@@ -56,15 +56,18 @@ vector<string> find_entries(const char* path, string startingWith)
     return entries;
 }
 
-string find_next_entry(const char* path, string startingWith)
+string find_next_entry(const char* path, string startingWith, int skipElements)
 {
     DIR* dir = opendir(path);
     if (dir == NULL) return "";
 
+    int curIndx = 0;
     struct dirent* entry;
     while ((entry = readdir(dir)) != NULL)
     {
-        if (starts_with(entry->d_name, startingWith)) return entry->d_name;
+        if (starts_with(entry->d_name, startingWith) &&
+            skipElements == curIndx++)
+            return entry->d_name;
     }
 
     return "";

@@ -63,6 +63,7 @@ string read_input()
 {
     string input;
     historyIndex = history.size();
+    int curDirIdx = 0;
 
     while (true)
     {
@@ -76,6 +77,8 @@ string read_input()
         // TODO: switch for windows
         else if (c == 27)
         {
+            curDirIdx = 0;
+
             // termios returns a secape sequence instead of single characters
             char seq[3];
             seq[0] = unix_getch();
@@ -110,6 +113,8 @@ string read_input()
         {
             if (!input.empty())
             {
+                // reset on input
+                curDirIdx = 0;
                 input.erase(input.length() - 1);
                 clear_characters(1);
             }
@@ -117,15 +122,28 @@ string read_input()
         // TAB
         else if (c == 9)
         {
-            // we replace the whole input string
-            string completion = get_completion(input);
-            clear_characters(input.length());
+            Split inputSplit = split_last(input, ' ');
+            // TODO: maybe instead of index, get the whole list per input
+            //  and then store it in here to go through it
+            //  -> It's probably simpler
+            //  -> Refresh the list everytime a key was pressed etc
+            //  -> So need to track TAB to TAB handling only
+            //  => This makes also going backwards easier
+            Completion completion = get_completion(inputSplit.tail, curDirIdx);
+            if (completion.found)
+            {
+                curDirIdx++;
+                input.erase(inputSplit.head.length() + 1);
+                clear_characters(inputSplit.tail.length());
 
-            cout << completion;
-            input = completion;
+                cout << completion.text;
+                input += completion.text;
+            }
         }
         else
         {
+            // reset on input
+            curDirIdx = 0;
             input += c;
             cout << c;
         }

@@ -13,20 +13,20 @@ PathSplit resolve_absolute_path(string pathInput)
     if (dirSplit.head.length() == 0)
     {
         path.path = '/';
-        path.file_name = dirSplit.tail;
+        path.search_element = dirSplit.tail;
     }
     // parent dir exists, also handles relative paths ./ & ../
     else if (dir_exists(dirSplit.head.c_str()))
     {
         path.path = dirSplit.head;
-        path.file_name = dirSplit.tail;
+        path.search_element = dirSplit.tail;
     }
     // plain relative paths
     // TODO: for windows, this is not relevant again
     else if (!starts_with(dirSplit.head, '/'))
     {
         path.path = get_working_directory(false);
-        path.file_name = dirSplit.head;
+        path.search_element = dirSplit.head;
     }
 
     return path;
@@ -35,16 +35,29 @@ PathSplit resolve_absolute_path(string pathInput)
 // TODO:
 //  handle home dir
 //  handle root dir
-//  handle next/previous element selection
-string get_completion(string input)
+Completion get_completion(string input, int skipElements = 0)
 {
+    Completion cmp = {};
     // only want to complete at the last element
-    Split inputSplit = split_last(input, ' ');
-    PathSplit split = resolve_absolute_path(inputSplit.tail);
+    PathSplit split = resolve_absolute_path(input);
 
-    string match = find_next_entry(split.path.c_str(), split.file_name);
+    string match;
+    if (skipElements > 0)
+    {
+        // TODO: create: finde idx entry after match
+        match = find_next_entry(split.path.c_str(), "", skipElements);
+    }
+    else
+    {
+        match = find_next_entry(split.path.c_str(),
+                                split.search_element,
+                                skipElements);
+    }
 
-    if (match.empty()) return input;
+    // TODO: When the last char is a /, then i change dir
+    //- else i search next element in this dir
+
+    if (match.empty()) return cmp;
 
     string wd = get_working_directory(false);
     if (starts_with(split.path, wd))
@@ -57,14 +70,19 @@ string get_completion(string input)
         split.path += "/";
     }
 
-    return inputSplit.head + " " + split.path + match;
+    // TODO: dir changed
+    cmp.text = split.path + match;
+    cmp.found = true;
+
+    return cmp;
 }
 
 // TODO: handle windows type paths correctly
 bool print_suggestions(string inputDir)
 {
     PathSplit split = resolve_absolute_path(inputDir);
-    vector<string> entries = find_entries(split.path.c_str(), split.file_name);
+    vector<string> entries = find_entries(split.path.c_str(),
+                                          split.search_element);
 
     if (entries.size() > 0)
     {

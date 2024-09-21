@@ -34,5 +34,12 @@ struct Split
 struct PathSplit
 {
     string path;
-    string file_name;
+    string search_element;
+};
+
+struct Completion
+{
+    string text;
+    bool dir_changed;
+    bool found;
 };
