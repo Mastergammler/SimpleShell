@@ -1,6 +1,7 @@
 #pragma once
 
 #include "commands.h"
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -42,4 +43,17 @@ struct Completion
     string text;
     bool dir_changed;
     bool found;
+};
+
+struct SessionState
+{
+    // temporary for current input
+    bool refresh_completions;
+    vector<string> completions;
+    int completion_index;
+    string previous_completion;
+
+    // transient for current session
+    vector<string> history;
+    int history_index;
 };

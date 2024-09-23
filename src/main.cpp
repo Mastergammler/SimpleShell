@@ -1,10 +1,10 @@
 #include "commands.cpp"
 #include "startup.cpp"
+#include "state.cpp"
 #include "types.h"
 #include "unix/terminal.cpp"
 
-static vector<string> history;
-static int historyIndex;
+static SessionState Session;
 
 void HandleCommand(Command cmd)
 {
@@ -25,31 +25,6 @@ void HandleCommand(Command cmd)
     }
 }
 
-string get_previous_entry()
-{
-    if (history.size() == 0) return "";
-
-    // get 'stuck' at earliest element
-    historyIndex--;
-    if (historyIndex < 0)
-    {
-        historyIndex = 0;
-    }
-
-    return history[historyIndex];
-}
-
-string get_next_entry()
-{
-    historyIndex++;
-    if (historyIndex >= history.size())
-    {
-        historyIndex = history.size();
-        return "";
-    }
-    return history[historyIndex];
-}
-
 void clear_characters(int amount)
 {
     for (int i = 0; i < amount; i++)
@@ -62,8 +37,8 @@ void clear_characters(int amount)
 string read_input()
 {
     string input;
-    historyIndex = history.size();
-    int curDirIdx = 0;
+    Session.history_index = Session.history.size();
+    reset_completions(&Session);
 
     while (true)
     {
@@ -77,7 +52,7 @@ string read_input()
         // TODO: switch for windows
         else if (c == 27)
         {
-            curDirIdx = 0;
+            reset_completions(&Session);
 
             // termios returns a secape sequence instead of single characters
             char seq[3];
@@ -91,12 +66,12 @@ string read_input()
                 {
                     case 'A':
                         clear_characters(input.length());
-                        input = get_previous_entry();
+                        input = get_previous_entry(&Session);
                         cout << input;
                         break;
                     case 'B':
                         clear_characters(input.length());
-                        input = get_next_entry();
+                        input = get_next_entry(&Session);
                         cout << input;
                         break;
                     case 'C':
@@ -109,12 +84,12 @@ string read_input()
             }
         }
         // DEL & BACKSPACE
-        else if (c == 127 || c == 0)
+        else if (c == 127)
         {
             if (!input.empty())
             {
                 // reset on input
-                curDirIdx = 0;
+                reset_completions(&Session);
                 input.erase(input.length() - 1);
                 clear_characters(1);
             }
@@ -123,27 +98,35 @@ string read_input()
         else if (c == 9)
         {
             Split inputSplit = split_last(input, ' ');
-            // TODO: maybe instead of index, get the whole list per input
-            //  and then store it in here to go through it
-            //  -> It's probably simpler
-            //  -> Refresh the list everytime a key was pressed etc
-            //  -> So need to track TAB to TAB handling only
-            //  => This makes also going backwards easier
-            Completion completion = get_completion(inputSplit.tail, curDirIdx);
-            if (completion.found)
+            if (Session.refresh_completions)
             {
-                curDirIdx++;
-                input.erase(inputSplit.head.length() + 1);
-                clear_characters(inputSplit.tail.length());
+                PathSplit paths = resolve_absolute_path(inputSplit.tail);
+                vector<string> currentCompletions = find_entries(
+                                                        paths.path.c_str(),
+                                                        paths.search_element);
 
-                cout << completion.text;
-                input += completion.text;
+                Session.previous_completion = paths.search_element;
+                set_current_completions(&Session, currentCompletions);
+            }
+
+            // FIXME: BUG, when continuing pressing tab, it's completing the
+            // next dir without a '/' in between
+            string completion = get_next_completion(&Session);
+            if (!completion.empty())
+            {
+                input.erase(input.length() -
+                            Session.previous_completion.length());
+                clear_characters(Session.previous_completion.length());
+
+                cout << completion;
+                input += completion;
+                Session.previous_completion = completion;
             }
         }
         else
         {
             // reset on input
-            curDirIdx = 0;
+            reset_completions(&Session);
             input += c;
             cout << c;
         }
@@ -157,7 +140,7 @@ void repl()
     cout << get_working_directory() << " # ";
 
     string input = read_input();
-    history.push_back(input);
+    Session.history.push_back(input);
 
     Split s = split_next(input, ' ');
     Command cmd = {s.head, s.tail};
