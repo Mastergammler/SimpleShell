@@ -10,7 +10,9 @@
 - [x] Tab autocomplete loop
 - [x] case insensitive path match
 - [ ] Autocomplete on tab
-    - [ ] Handle realtive paths
+    - [x] Handle realative paths
+    - [ ] Handle absolute path completions
+    - [ ] Handle home dir completions
 
 *Windows*
 - [ ] Windows build setup

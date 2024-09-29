@@ -1,4 +1,5 @@
 #include "parsing.cpp"
+#include "state.cpp"
 #include "types.h"
 #include "unix/filesystem.cpp"
 
@@ -24,52 +25,36 @@ PathSplit resolve_absolute_path(string pathInput)
     return path;
 }
 
-// TODO:
-//  handle home dir
-//  handle root dir
-Completion get_completion(string input, int skipElements = 0)
+// TODO: switch -> git branch completion vs path completion
+//  - is it akward if git would enable path completion completely?
+//  - maybe i'll change it later to only be on certain commands
+//  (like branch || checkout)
+string get_completion(SessionState* session, string input, bool next = true)
 {
-    Completion cmp = {};
-    // only want to complete at the last element
-    PathSplit split = resolve_absolute_path(input);
+    Split inputSplit = split_last(input, ' ');
 
-    string match;
-    if (skipElements > 0)
+    if (session->refresh_completions)
     {
-        // TODO: create: finde idx entry after match
-        match = find_next_entry(split.path.c_str(), "", skipElements);
+        PathSplit paths = resolve_absolute_path(inputSplit.found ? inputSplit.tail
+                                                                 : inputSplit.head);
+        vector<string> currentCompletions = find_entries(paths.path.c_str(),
+                                                         paths.search_element);
+
+        session->previous_completion = paths.search_element;
+        set_current_completions(session, currentCompletions);
+    }
+
+    if (next)
+    {
+        return get_next_completion(session);
     }
     else
     {
-        match = find_next_entry(split.path.c_str(),
-                                split.search_element,
-                                skipElements);
+        return get_prev_completion(session);
     }
-
-    // TODO: When the last char is a /, then i change dir
-    //- else i search next element in this dir
-
-    if (match.empty()) return cmp;
-
-    string wd = get_working_directory(false);
-    if (starts_with(split.path, wd))
-    {
-        split.path = split.path.substr(wd.length());
-    }
-
-    if (!split.path.empty())
-    {
-        split.path += "/";
-    }
-
-    // TODO: dir changed
-    cmp.text = split.path + match;
-    cmp.found = true;
-
-    return cmp;
 }
 
-// TODO: handle windows type paths correctly
+// TODO: windows: handle windows paths correctly
 bool print_suggestions(string inputDir)
 {
     PathSplit split = resolve_absolute_path(inputDir);

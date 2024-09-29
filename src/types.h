@@ -54,6 +54,7 @@ struct SessionState
     // temporary for current input
     bool refresh_completions;
     vector<string> completions;
+
     int completion_index;
     string previous_completion;
 
@@ -61,3 +62,7 @@ struct SessionState
     vector<string> history;
     int history_index;
 };
+
+const char CH_ESC = 27;
+const char CH_TAB = 9;
+const char CH_DEL = 127;

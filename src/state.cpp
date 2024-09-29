@@ -27,7 +27,7 @@ string get_next_entry(SessionState* state)
 
 void reset_completions(SessionState* state)
 {
-    state->completion_index = 0;
+    state->completion_index = -1;
     state->completions.clear();
     state->previous_completion = "";
     state->refresh_completions = true;
@@ -35,27 +35,43 @@ void reset_completions(SessionState* state)
 
 void set_current_completions(SessionState* state, vector<string> completions)
 {
-    state->completion_index = 0;
+    state->completion_index = -1;
     state->completions = completions;
     state->refresh_completions = false;
 }
 
-// TODO: maybe switch to -1 based index?
-// - because this feels quite akward
 string get_next_completion(SessionState* state)
 {
-    assert(state->completion_index >= 0);
     if (state->completions.size() == 0) return "";
+    assert(state->completion_index >= -1);
 
-    if (state->completion_index >= state->completions.size())
+    int nextCmpIndex = state->completion_index + 1;
+    if (nextCmpIndex >= state->completions.size())
     {
-        // we're doing round about
-        state->completion_index = 0;
+        // going around
+        nextCmpIndex = 0;
     }
 
-    return state->completions[state->completion_index++];
+    state->completion_index = nextCmpIndex;
+    return state->completions[nextCmpIndex];
 }
 
-string get_previous_complotion(SessionState* state)
+string get_prev_completion(SessionState* state)
 {
+    if (state->completions.size() == 0) return "";
+
+    // since size is a unsinged long i can not just check for < size,
+    // i have to handle negative cases individually
+    assert(state->completion_index < 0 ||
+           state->completion_index < state->completions.size());
+
+    int prevCmpIndex = state->completion_index - 1;
+    if (prevCmpIndex < 0)
+    {
+        // ground around
+        prevCmpIndex = state->completions.size() - 1;
+    }
+
+    state->completion_index = prevCmpIndex;
+    return state->completions[prevCmpIndex];
 }

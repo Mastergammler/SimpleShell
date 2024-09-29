@@ -1,6 +1,5 @@
 #include "commands.cpp"
 #include "startup.cpp"
-#include "state.cpp"
 #include "types.h"
 #include "unix/terminal.cpp"
 
@@ -34,9 +33,22 @@ void clear_characters(int amount)
     }
 }
 
+void replace_input(string* input, string completion)
+{
+    if (!completion.empty())
+    {
+        input->erase(input->length() - Session.previous_completion.length());
+        clear_characters(Session.previous_completion.length());
+
+        cout << completion;
+        input->append(completion);
+        Session.previous_completion = completion;
+    }
+}
+
 string read_input()
 {
-    string input;
+    string inputBuffer;
     Session.history_index = Session.history.size();
     reset_completions(&Session);
 
@@ -48,12 +60,10 @@ string read_input()
             cout << endl;
             break;
         }
-        // handle arrow keys
-        // TODO: switch for windows
-        else if (c == 27)
+        // handle escape sequences
+        // TEST: same for windows?
+        else if (c == CH_ESC)
         {
-            reset_completions(&Session);
-
             // termios returns a secape sequence instead of single characters
             char seq[3];
             seq[0] = unix_getch();
@@ -65,14 +75,16 @@ string read_input()
                 switch (seq[1])
                 {
                     case 'A':
-                        clear_characters(input.length());
-                        input = get_previous_entry(&Session);
-                        cout << input;
+                        reset_completions(&Session);
+                        clear_characters(inputBuffer.length());
+                        inputBuffer = get_previous_entry(&Session);
+                        cout << inputBuffer;
                         break;
                     case 'B':
-                        clear_characters(input.length());
-                        input = get_next_entry(&Session);
-                        cout << input;
+                        reset_completions(&Session);
+                        clear_characters(inputBuffer.length());
+                        inputBuffer = get_next_entry(&Session);
+                        cout << inputBuffer;
                         break;
                     case 'C':
                         // right: do nothing
@@ -80,58 +92,43 @@ string read_input()
                     case 'D':
                         // left: do nothing
                         break;
+                    case 'Z':
+                        // shift + tab
+                        string completion = get_completion(&Session,
+                                                           inputBuffer,
+                                                           false);
+                        replace_input(&inputBuffer, completion);
+                        break;
                 }
             }
         }
         // DEL & BACKSPACE
-        else if (c == 127)
+        else if (c == CH_DEL)
         {
-            if (!input.empty())
+            if (!inputBuffer.empty())
             {
                 // reset on input
                 reset_completions(&Session);
-                input.erase(input.length() - 1);
+                inputBuffer.erase(inputBuffer.length() - 1);
                 clear_characters(1);
             }
         }
         // TAB
-        else if (c == 9)
+        else if (c == CH_TAB)
         {
-            Split inputSplit = split_last(input, ' ');
-            if (Session.refresh_completions)
-            {
-                PathSplit paths = resolve_absolute_path(inputSplit.found ? inputSplit.tail
-                                                                         : inputSplit.head);
-                vector<string> currentCompletions = find_entries(
-                                                        paths.path.c_str(),
-                                                        paths.search_element);
-
-                Session.previous_completion = paths.search_element;
-                set_current_completions(&Session, currentCompletions);
-            }
-
-            string completion = get_next_completion(&Session);
-            if (!completion.empty())
-            {
-                input.erase(input.length() -
-                            Session.previous_completion.length());
-                clear_characters(Session.previous_completion.length());
-
-                cout << completion;
-                input += completion;
-                Session.previous_completion = completion;
-            }
+            string completion = get_completion(&Session, inputBuffer, true);
+            replace_input(&inputBuffer, completion);
         }
         else
         {
             // reset on input
             reset_completions(&Session);
-            input += c;
+            inputBuffer += c;
             cout << c;
         }
     }
 
-    return input;
+    return inputBuffer;
 }
 
 void repl()
