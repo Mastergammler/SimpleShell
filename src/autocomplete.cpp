@@ -6,19 +6,7 @@ PathSplit resolve_absolute_path(string pathInput)
 {
     Split dirSplit = split_last_path(pathInput);
     PathSplit path = {};
-
-    // TODO: i think this is akward behaviour, if "" then just search in root
-    // dir
-    // -> root dir should only be searched if it's specified, else it should
-    // just be, relative dir NOTE: root dir, linux only, on windows we would
-    // always have the drive in front so this would never apply
-    /*if (dirSplit.head.length() == 0)
-    {
-        path.path = '/';
-        path.search_element = dirSplit.tail;
-    }
-    // parent dir exists, also handles relative paths ./ & ../
-    else */
+    path.trailing_path_slash = dirSplit.found;
 
     if (dir_exists(dirSplit.head.c_str()))
     {

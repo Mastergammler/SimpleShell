@@ -14,8 +14,6 @@ struct Command
 
 typedef void (*CommandAction)(Command);
 
-// TODO: FEATURES
-//  - history (up and down arrow storage / session) -> stack?
 void Builtin_Exit(Command cmd);
 void Builtin_Echo(Command cmd);
 void Builtin_Type(Command cmd);

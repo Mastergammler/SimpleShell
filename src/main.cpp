@@ -100,7 +100,8 @@ string read_input()
             Split inputSplit = split_last(input, ' ');
             if (Session.refresh_completions)
             {
-                PathSplit paths = resolve_absolute_path(inputSplit.tail);
+                PathSplit paths = resolve_absolute_path(inputSplit.found ? inputSplit.tail
+                                                                         : inputSplit.head);
                 vector<string> currentCompletions = find_entries(
                                                         paths.path.c_str(),
                                                         paths.search_element);
@@ -109,8 +110,6 @@ string read_input()
                 set_current_completions(&Session, currentCompletions);
             }
 
-            // FIXME: BUG, when continuing pressing tab, it's completing the
-            // next dir without a '/' in between
             string completion = get_next_completion(&Session);
             if (!completion.empty())
             {

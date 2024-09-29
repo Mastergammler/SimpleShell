@@ -17,10 +17,12 @@ using std::cerr;
 using std::cin;
 using std::cout;
 using std::endl;
+using std::equal;
 using std::getenv;
 using std::getline;
 using std::pair;
 using std::stack;
+using std::tolower;
 using std::vector;
 
 static bool running = true;
@@ -30,12 +32,14 @@ struct Split
 {
     string head;
     string tail;
+    bool found;
 };
 
 struct PathSplit
 {
     string path;
     string search_element;
+    bool trailing_path_slash;
 };
 
 struct Completion

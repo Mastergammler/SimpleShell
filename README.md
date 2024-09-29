@@ -8,7 +8,7 @@
 *Autocomplete*
 - [x] relative paths
 - [x] Tab autocomplete loop
-- [ ] case insensitive path match
+- [x] case insensitive path match
 - [ ] Autocomplete on tab
     - [ ] Handle realtive paths
 

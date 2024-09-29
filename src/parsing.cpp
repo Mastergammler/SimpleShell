@@ -3,6 +3,7 @@
 #pragma once
 
 #include "types.h"
+#include <cctype>
 
 bool contains(string input, char c)
 {
@@ -16,10 +17,25 @@ bool starts_with(string input, char c)
     return input[0] == c;
 }
 
-bool starts_with(string input, string startSequence)
+bool case_insensitive_compare(char a, char b)
 {
-    int cmpResult = input.compare(0, startSequence.length(), startSequence);
-    return cmpResult == 0;
+    return tolower(a) == tolower(b);
+}
+
+bool starts_with(string input, string startSequence, bool caseSensitive = false)
+{
+    if (caseSensitive)
+    {
+        int cmpResult = input.compare(0, startSequence.length(), startSequence);
+        return cmpResult == 0;
+    }
+    else
+    {
+        return equal(startSequence.begin(),
+                     startSequence.end(),
+                     input.begin(),
+                     case_insensitive_compare);
+    }
 }
 
 Split split_at(int idx, string input)
@@ -29,6 +45,7 @@ Split split_at(int idx, string input)
     {
         split.head = input.substr(0, idx);
         split.tail = input.substr(idx + 1);
+        split.found = true;
     }
     else
     {
