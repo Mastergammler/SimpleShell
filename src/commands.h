@@ -22,4 +22,6 @@ void Builtin_Pwd(Command cmd);
 void Builtin_Cd(Command cmd);
 void NotFound(Command cmd);
 
+void Debug_Test(Command cmd);
+
 static map<string, CommandAction> BuiltinCommands;

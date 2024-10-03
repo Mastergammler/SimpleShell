@@ -1,4 +1,4 @@
-#include "autocomplete.cpp"
+#include "path.cpp"
 #include "types.h"
 
 void Builtin_Exit(Command cmd)
@@ -15,7 +15,7 @@ const char* program_path(string name)
 {
     for (int i = 0; i < binPaths.size(); i++)
     {
-        const char* curPath = binPaths[i];
+        const char* curPath = binPaths[i].c_str();
 
         if (file_exists(curPath, name.c_str()))
         {
@@ -104,6 +104,24 @@ void Builtin_Cd(Command cmd)
                 cout << dir << ": No such file or directory\n";
         }
     }
+}
+
+void Debug_PrintAscii(string s)
+{
+    for (int i = 0; i < s.length(); i++)
+    {
+        int ascii = s[i];
+        cout << ascii << " ";
+        if (ascii == 10)
+        {
+            cout << "\n";
+        }
+    }
+}
+
+void Debug_Test(Command cmd)
+{
+    cout << "no test implemented";
 }
 
 void NotFound(Command cmd)

@@ -1,4 +1,5 @@
 #include "commands.cpp"
+#include "git.cpp"
 #include "startup.cpp"
 #include "types.h"
 #include "unix/terminal.cpp"
@@ -33,24 +34,34 @@ void clear_characters(int amount)
     }
 }
 
-void replace_input(string* input, string completion)
+void replace_input(CompletionCache* cache, string* input, string completion)
 {
     if (!completion.empty())
     {
-        input->erase(input->length() - Session.previous_completion.length());
-        clear_characters(Session.previous_completion.length());
+        input->erase(input->length() - cache->prev_completion.length());
+        clear_characters(cache->prev_completion.length());
 
         cout << completion;
         input->append(completion);
-        Session.previous_completion = completion;
+        cache->prev_completion = completion;
     }
+    else
+    {
+        cout << SOUND;
+    }
+}
+
+void reset_all_completions()
+{
+    reset_completions(&Session.path_completions);
+    reset_completions(&Session.branch_completions);
 }
 
 string read_input()
 {
     string inputBuffer;
     Session.history_index = Session.history.size();
-    reset_completions(&Session);
+    reset_all_completions();
 
     while (true)
     {
@@ -62,6 +73,8 @@ string read_input()
         }
         // handle escape sequences
         // TEST: same for windows?
+        // TODO: refactor, what to do functions (on_arrow_up_ress) etc
+        // and when to trigger it
         else if (c == CH_ESC)
         {
             // termios returns a secape sequence instead of single characters
@@ -74,30 +87,46 @@ string read_input()
             {
                 switch (seq[1])
                 {
-                    case 'A':
-                        reset_completions(&Session);
+                    case ESCS_ARROW_UP:
+                        reset_all_completions();
                         clear_characters(inputBuffer.length());
                         inputBuffer = get_previous_entry(&Session);
                         cout << inputBuffer;
                         break;
-                    case 'B':
-                        reset_completions(&Session);
+                    case ESCS_ARROW_DOWN:
+                        reset_all_completions();
                         clear_characters(inputBuffer.length());
                         inputBuffer = get_next_entry(&Session);
                         cout << inputBuffer;
                         break;
-                    case 'C':
+                    case ESCS_ARROW_RIGHT:
                         // right: do nothing
                         break;
-                    case 'D':
+                    case ESCS_ARROW_LEFT:
                         // left: do nothing
                         break;
-                    case 'Z':
+                    // DEL has sequence 3~
+                    case ESCS_DEL_1:
+                    {
+                        char next = unix_getch();
+                        if (next == ESCS_DEL_2)
+                        {
+                            reset_all_completions();
+                            clear_characters(inputBuffer.length());
+                            inputBuffer = "";
+                        }
+                    }
+                    break;
+                    case ESCS_SHIFT_TAB:
+                        // TODO: git branch completions
+
                         // shift + tab
-                        string completion = get_completion(&Session,
-                                                           inputBuffer,
-                                                           false);
-                        replace_input(&inputBuffer, completion);
+                        string completion = get_path_completion(&Session.path_completions,
+                                                                inputBuffer,
+                                                                false);
+                        replace_input(&Session.path_completions,
+                                      &inputBuffer,
+                                      completion);
                         break;
                 }
             }
@@ -108,7 +137,7 @@ string read_input()
             if (!inputBuffer.empty())
             {
                 // reset on input
-                reset_completions(&Session);
+                reset_all_completions();
                 inputBuffer.erase(inputBuffer.length() - 1);
                 clear_characters(1);
             }
@@ -116,13 +145,34 @@ string read_input()
         // TAB
         else if (c == CH_TAB)
         {
-            string completion = get_completion(&Session, inputBuffer, true);
-            replace_input(&inputBuffer, completion);
+            Split inputSplit = split_next(inputBuffer, ' ');
+
+            // TODO: there can be multiple git contexts where i also would have
+            // file search -> i have to differentiate those later
+            if (inputSplit.head == "git")
+            {
+                string completion = get_branch_completion(
+                                                        &Session.branch_completions,
+                                                        inputBuffer,
+                                                        true);
+                replace_input(&Session.branch_completions,
+                              &inputBuffer,
+                              completion);
+            }
+            else
+            {
+                string completion = get_path_completion(&Session.path_completions,
+                                                        inputBuffer,
+                                                        true);
+                replace_input(&Session.path_completions,
+                              &inputBuffer,
+                              completion);
+            }
         }
         else
         {
             // reset on input
-            reset_completions(&Session);
+            reset_all_completions();
             inputBuffer += c;
             cout << c;
         }
@@ -133,7 +183,8 @@ string read_input()
 
 void repl()
 {
-    cout << get_working_directory() << " # ";
+    cout << BOLD << COLOR_BLUE << get_working_directory() << ANSI_RESET
+         << " # ";
 
     string input = read_input();
     Session.history.push_back(input);
@@ -146,7 +197,6 @@ void repl()
 int main()
 {
     // Flush after every std::cout / std:cerr
-    // TODO: why would you do this? Ease of use? Seems a bit odd
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 

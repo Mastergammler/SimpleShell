@@ -25,22 +25,20 @@ PathSplit resolve_absolute_path(string pathInput)
     return path;
 }
 
-// TODO: switch -> git branch completion vs path completion
-//  - is it akward if git would enable path completion completely?
-//  - maybe i'll change it later to only be on certain commands
-//  (like branch || checkout)
-string get_completion(SessionState* session, string input, bool next = true)
+string get_path_completion(CompletionCache* session,
+                           string input,
+                           bool next = true)
 {
     Split inputSplit = split_last(input, ' ');
 
-    if (session->refresh_completions)
+    if (session->refresh)
     {
         PathSplit paths = resolve_absolute_path(inputSplit.found ? inputSplit.tail
                                                                  : inputSplit.head);
         vector<string> currentCompletions = find_entries(paths.path.c_str(),
                                                          paths.search_element);
 
-        session->previous_completion = paths.search_element;
+        session->prev_completion = paths.search_element;
         set_current_completions(session, currentCompletions);
     }
 

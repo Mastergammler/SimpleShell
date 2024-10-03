@@ -10,6 +10,7 @@ void Init_Builtins()
     BuiltinCommands["help"] = Builtin_Help;
     BuiltinCommands["pwd"] = Builtin_Pwd;
     BuiltinCommands["cd"] = Builtin_Cd;
+    BuiltinCommands["test"] = Debug_Test;
 }
 
 void Init_Path()

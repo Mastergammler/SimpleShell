@@ -1,17 +1,14 @@
-// TODO: refactor this is not good, that the order is kind of messed up here
-// already
 #pragma once
 
 #include "types.h"
-#include <cctype>
 
-bool contains(string input, char c)
+bool contains(const string& input, char c)
 {
     int idx = input.find_first_of(c);
     return idx != string::npos;
 }
 
-bool starts_with(string input, char c)
+bool starts_with(const string& input, char c)
 {
     if (input.length() <= 0) return false;
     return input[0] == c;
@@ -22,7 +19,18 @@ bool case_insensitive_compare(char a, char b)
     return tolower(a) == tolower(b);
 }
 
-bool starts_with(string input, string startSequence, bool caseSensitive = false)
+bool contains(const string& input, const string& substring)
+{
+    return search(input.begin(),
+                  input.end(),
+                  substring.begin(),
+                  substring.end(),
+                  case_insensitive_compare) != input.end();
+}
+
+bool starts_with(const string& input,
+                 const string& startSequence,
+                 bool caseSensitive = false)
 {
     if (caseSensitive)
     {
@@ -38,7 +46,45 @@ bool starts_with(string input, string startSequence, bool caseSensitive = false)
     }
 }
 
-Split split_at(int idx, string input)
+/**
+ * Trims the basic whitespace characters: space, \t \n \r
+ * Can be extended to trim more with the second parameter
+ */
+void trim(string& input, string additionalTrimChars = "")
+{
+    const string trimCharacters = additionalTrimChars.append(" \t\n\r");
+
+    input.erase(0, input.find_first_not_of(trimCharacters));
+    input.erase(input.find_last_not_of(trimCharacters) + 1);
+}
+
+/**
+ * removes the starting sequence from the string if it exists
+ */
+void trim_start(string& input, const string& sequence)
+{
+    if (starts_with(input, sequence))
+    {
+        input.erase(0, sequence.length());
+    }
+}
+
+void remove_until(string& input, char c, bool last = true)
+{
+    int idx;
+    if (last)
+        idx = input.find_last_of(c);
+    else
+        idx = input.find_first_of(c);
+
+    if (idx != string::npos)
+    {
+        // we want to erase the last 'c' as well
+        input.erase(0, idx + 1);
+    }
+}
+
+Split split_at(int idx, const string& input)
 {
     Split split = {};
     if (idx != string::npos)
@@ -56,19 +102,19 @@ Split split_at(int idx, string input)
     return split;
 }
 
-Split split_next(string input, char sep)
+Split split_next(const string& input, char sep)
 {
     int idx = input.find_first_of(sep);
     return split_at(idx, input);
 }
 
-Split split_last(string input, char sep)
+Split split_last(const string& input, char sep)
 {
     int idx = input.find_last_of(sep);
     return split_at(idx, input);
 }
 
-Split split_last_path(string input)
+Split split_last_path(const string& input)
 {
     int sep1 = input.find_last_of('/');
     int sep2 = input.find_last_of('\\');
@@ -86,38 +132,49 @@ Split split_last_path(string input)
 
 /**
  * Expects a '\0' terminated string,
- * will exit automatically when string exceeds 256 characters
+ * will exit automatically when string exceeds 4096 characters
  */
-vector<char*> split_all(const char* input, char sep)
+vector<string> split_all(const char* input, char sep, bool skipEmpty = true)
 {
-    vector<char*> splits;
+    vector<string> splits;
 
     int idx = 0;
-    int lastIdx = 0;
-    const char* current = input;
+    int prevIdx = 0;
+    const char* c = input;
 
     while (idx < PATH_MAX)
     {
-        if (*current == sep || *current == '\0')
+        if (*c == sep || *c == '\0')
         {
-            int length = idx - lastIdx;
+            int length = idx - prevIdx;
 
-            char* substr = new char[length];
+            // TODO: i allocate this here but never deallocate it
+            // - so a new one for every string.split call
+            char* substr = new char[length + 1];
             for (int i = 0; i < length; i++)
             {
-                substr[i] = input[lastIdx + i];
+                substr[i] = input[prevIdx + i];
             }
-            // NOTE: since this is a string vector, it will allocate new memory
-            // here for the array also
-            // To prevent this use a vector<char*>
-            splits.push_back(substr);
-            lastIdx = idx + 1;
+            // without the null terminator, we'll get problems while printing
+            substr[length] = '\0';
+
+            // NOTE: since this is a string vector, it will
+            // allocate new memory here for the array also
+            // using vector<char*> would eleviate the problem,
+            // but then we would need to handle null
+            // termination ourselfes, so we keep it that way
+
+            if (!skipEmpty || length > 0)
+            {
+                splits.push_back(substr);
+            }
+            prevIdx = idx + 1;
         }
 
         // TODO: pretty ugly -> refactor
-        if (*current == '\0') break;
+        if (*c == '\0') break;
 
-        current++;
+        c++;
         idx++;
     }
 

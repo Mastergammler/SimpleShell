@@ -13,9 +13,13 @@
     - [x] Handle realative paths
     - [ ] Handle absolute path completions
     - [ ] Handle home dir completions
+- [ ] Git completions
+    - [x] Branch completion
+    - [ ] Switch branch / file completions 
 
 *Windows*
 - [ ] Windows build setup
 - [ ] Windows filesystem handling
 - [ ] Windows read key handling
+- [ ] Windows env variable handling
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "types.h"
 
 string get_previous_entry(SessionState* state)
@@ -25,53 +27,53 @@ string get_next_entry(SessionState* state)
     return state->history[state->history_index];
 }
 
-void reset_completions(SessionState* state)
+void reset_completions(CompletionCache* cache)
 {
-    state->completion_index = -1;
-    state->completions.clear();
-    state->previous_completion = "";
-    state->refresh_completions = true;
+    cache->index = -1;
+    cache->completions.clear();
+    cache->prev_completion = "";
+    cache->refresh = true;
 }
 
-void set_current_completions(SessionState* state, vector<string> completions)
+void set_current_completions(CompletionCache* cache,
+                             const vector<string> completions)
 {
-    state->completion_index = -1;
-    state->completions = completions;
-    state->refresh_completions = false;
+    cache->index = -1;
+    cache->completions = completions;
+    cache->refresh = false;
 }
 
-string get_next_completion(SessionState* state)
+string get_next_completion(CompletionCache* cache)
 {
-    if (state->completions.size() == 0) return "";
-    assert(state->completion_index >= -1);
+    if (cache->completions.size() == 0) return "";
+    assert(cache->index >= -1);
 
-    int nextCmpIndex = state->completion_index + 1;
-    if (nextCmpIndex >= state->completions.size())
+    int nextCmpIndex = cache->index + 1;
+    if (nextCmpIndex >= cache->completions.size())
     {
         // going around
         nextCmpIndex = 0;
     }
 
-    state->completion_index = nextCmpIndex;
-    return state->completions[nextCmpIndex];
+    cache->index = nextCmpIndex;
+    return cache->completions[nextCmpIndex];
 }
 
-string get_prev_completion(SessionState* state)
+string get_prev_completion(CompletionCache* cache)
 {
-    if (state->completions.size() == 0) return "";
+    if (cache->completions.size() == 0) return "";
 
     // since size is a unsinged long i can not just check for < size,
     // i have to handle negative cases individually
-    assert(state->completion_index < 0 ||
-           state->completion_index < state->completions.size());
+    assert(cache->index < 0 || cache->index < cache->completions.size());
 
-    int prevCmpIndex = state->completion_index - 1;
+    int prevCmpIndex = cache->index - 1;
     if (prevCmpIndex < 0)
     {
-        // ground around
-        prevCmpIndex = state->completions.size() - 1;
+        // going around
+        prevCmpIndex = cache->completions.size() - 1;
     }
 
-    state->completion_index = prevCmpIndex;
-    return state->completions[prevCmpIndex];
+    cache->index = prevCmpIndex;
+    return cache->completions[prevCmpIndex];
 }
