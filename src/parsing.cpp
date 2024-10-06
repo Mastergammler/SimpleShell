@@ -119,6 +119,13 @@ Split split_last_path(const string& input)
     int sep1 = input.find_last_of('/');
     int sep2 = input.find_last_of('\\');
 
+    // unix root dir
+    if (sep1 == 0 || sep2 == 0)
+    {
+        Split rootDir = {"/", input.substr(1, input.length() - 1)};
+        return rootDir;
+    }
+
     if (sep1 > sep2)
         return split_at(sep1, input);
     else

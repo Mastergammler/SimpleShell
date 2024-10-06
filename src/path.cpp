@@ -7,15 +7,17 @@ PathSplit resolve_absolute_path(string pathInput)
 {
     Split dirSplit = split_last_path(pathInput);
     PathSplit path = {};
+    // TODO: trailing slash handling
     path.trailing_path_slash = dirSplit.found;
 
+    // absolute path handling
     if (dir_exists(dirSplit.head.c_str()))
     {
         path.path = dirSplit.head;
         path.search_element = dirSplit.tail;
     }
-    // plain relative paths
-    // TODO: for windows, this is not relevant again
+    // relative path check
+    // TODO: WIN - check for drive letter
     else if (!starts_with(dirSplit.head, '/'))
     {
         path.path = get_working_directory(false);

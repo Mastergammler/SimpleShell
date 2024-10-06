@@ -121,7 +121,17 @@ void Debug_PrintAscii(string s)
 
 void Debug_Test(Command cmd)
 {
-    cout << "no test implemented";
+    cout << "\nRoot dir exists? " << dir_exists("/");
+
+    vector<string> entries = find_entries("/", "");
+
+    for (int i = 0; i < entries.size(); i++)
+    {
+        cout << "\n  " << entries[i];
+    }
+
+    cout << endl;
+    // cout << "no test implemented";
 }
 
 void NotFound(Command cmd)

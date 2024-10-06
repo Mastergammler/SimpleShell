@@ -11,7 +11,7 @@
 - [x] case insensitive path match
 - [ ] Autocomplete on tab
     - [x] Handle realative paths
-    - [ ] Handle absolute path completions
+    - [x] Handle absolute path completions (unix)
     - [ ] Handle home dir completions
 - [ ] Git completions
     - [x] Branch completion
