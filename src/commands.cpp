@@ -79,7 +79,7 @@ void Builtin_Pwd(Command cmd)
 void Builtin_Cd(Command cmd)
 {
     const char* dir = cmd.tail.c_str();
-    if (starts_with(cmd.tail, '~'))
+    if (starts_with(cmd.tail, HOME_SYMBOL))
     {
         dir = cmd.tail.replace(0, 1, get_home_dir()).c_str();
     }

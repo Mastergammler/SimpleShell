@@ -127,7 +127,7 @@ string get_working_directory(bool omitHome = true)
 
 void change_working_directory(string path)
 {
-    if (starts_with(path, '~'))
+    if (starts_with(path, HOME_SYMBOL))
     {
         path = path.replace(0, 1, get_home_dir()).c_str();
     }

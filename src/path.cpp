@@ -2,12 +2,21 @@
 #include "state.cpp"
 #include "types.h"
 #include "unix/filesystem.cpp"
+#include <cstdio>
 
 PathSplit resolve_absolute_path(string pathInput)
 {
+    if (starts_with(pathInput, HOME_SYMBOL))
+    {
+        string homeDir = get_home_dir();
+        pathInput.replace(0, 1, homeDir);
+    }
+
     Split dirSplit = split_last_path(pathInput);
     PathSplit path = {};
+
     // TODO: trailing slash handling
+    // - for the case of 2 completions after each other
     path.trailing_path_slash = dirSplit.found;
 
     // absolute path handling
