@@ -74,6 +74,7 @@ struct SessionState
 const char HOME_SYMBOL = '~';
 
 const char CH_ESC = 27;
+const char CH_BACK = 8;
 const char CH_TAB = 9;
 const char CH_DEL = 127;
 const char ESCS_ARROW_UP = 'A';
@@ -83,3 +84,6 @@ const char ESCS_ARROW_RIGHT = 'D';
 const char ESCS_SHIFT_TAB = 'Z';
 const char ESCS_DEL_1 = '3';
 const char ESCS_DEL_2 = '~';
+
+const char CH_NL_WIN = '\r';
+const char CH_NL_UNIX = '\n';

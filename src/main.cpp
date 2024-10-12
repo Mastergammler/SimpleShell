@@ -1,8 +1,18 @@
 #include "commands.cpp"
 #include "git.cpp"
+#include "osi.h"
 #include "startup.cpp"
 #include "types.h"
-#include "unix/terminal.cpp"
+
+#include "cwd.cpp"
+
+#ifdef _WIN32
+#include "windows/filesystem.cpp"
+#include "windows/input.cpp"
+#else
+#include "unix/filesystem.cpp"
+#include "unix/termios.cpp"
+#endif
 
 static SessionState Session;
 
@@ -65,8 +75,8 @@ string read_input()
 
     while (true)
     {
-        char c = unix_getch();
-        if (c == '\n')
+        char c = get_ch();
+        if (c == CH_NL_UNIX || c == CH_NL_WIN)
         {
             cout << endl;
             break;
@@ -79,8 +89,8 @@ string read_input()
         {
             // termios returns a secape sequence instead of single characters
             char seq[3];
-            seq[0] = unix_getch();
-            seq[1] = unix_getch();
+            seq[0] = get_ch();
+            seq[1] = get_ch();
             seq[2] = '\0';
 
             if (seq[0] == '[')
@@ -108,7 +118,7 @@ string read_input()
                     // DEL has sequence 3~
                     case ESCS_DEL_1:
                     {
-                        char next = unix_getch();
+                        char next = get_ch();
                         if (next == ESCS_DEL_2)
                         {
                             reset_all_completions();
@@ -132,7 +142,7 @@ string read_input()
             }
         }
         // DEL & BACKSPACE
-        else if (c == CH_DEL)
+        else if (c == CH_DEL || c == CH_BACK)
         {
             if (!inputBuffer.empty())
             {

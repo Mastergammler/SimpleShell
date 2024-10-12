@@ -5,7 +5,7 @@ const int FD_STDIN = 0;
 const int FD_STDOUT = 1;
 const int FD_STDERR = 2;
 
-char unix_getch()
+char get_ch()
 {
     char buf = 0;
     struct termios old = {0};
@@ -35,6 +35,3 @@ char unix_getch()
 
     return buf;
 }
-
-
-

@@ -5,11 +5,12 @@
 - Provide path auto complete for windows
 
 **Todo**
+
 *Autocomplete*
 - [x] relative paths
 - [x] Tab autocomplete loop
 - [x] case insensitive path match
-- [ ] Autocomplete on tab
+- [x] Autocomplete on tab
     - [x] Handle realative paths
     - [x] Handle absolute path completions (unix)
     - [x] Handle home dir completions
