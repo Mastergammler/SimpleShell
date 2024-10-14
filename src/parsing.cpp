@@ -46,6 +46,32 @@ bool starts_with(const string& input,
     }
 }
 
+bool ends_with(const string& input,
+               const string& substring,
+               bool caseSensitive = false)
+{
+    int inStartIdx = input.length() - substring.length();
+    if (inStartIdx < 0) return false;
+
+    int subIdx = 0;
+    for (int i = inStartIdx; i < input.length(); i++)
+    {
+        char cIn = input[i];
+        char cSub = substring[subIdx++];
+
+        if (caseSensitive)
+        {
+            if (!case_insensitive_compare(cIn, cSub)) return false;
+        }
+        else
+        {
+            if (cIn != cSub) return false;
+        }
+    }
+
+    return true;
+}
+
 /**
  * Trims the basic whitespace characters: space, \t \n \r
  * Can be extended to trim more with the second parameter

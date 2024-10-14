@@ -6,6 +6,15 @@
 #include <string.h>
 #include <windows.h>
 
+void create_executable_name(string& searchName)
+{
+    Split extensionSplit = split_last(searchName, '.');
+    if (!extensionSplit.found)
+    {
+        searchName.append(".exe");
+    }
+}
+
 // TODO: handle env var better
 string get_home_dir()
 {

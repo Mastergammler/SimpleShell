@@ -1,6 +1,11 @@
 #include "../parsing.cpp"
 #include "types.h"
 
+void create_executable_name(string& searchName)
+{
+    // noop - nothing to do on unix
+}
+
 bool is_executable(const char* path, const char* fileName)
 {
     string fullPath = string(path) + "/" + string(fileName);

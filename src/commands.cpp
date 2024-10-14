@@ -1,3 +1,4 @@
+#include "osi.h"
 #include "path.cpp"
 #include "types.h"
 
@@ -13,6 +14,8 @@ void Builtin_Echo(Command cmd)
 
 const char* program_path(string name)
 {
+    create_executable_name(name);
+
     for (int i = 0; i < binPaths.size(); i++)
     {
         const char* curPath = binPaths[i].c_str();

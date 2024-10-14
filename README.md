@@ -19,7 +19,7 @@
     - [ ] Switch branch / file completions 
 
 *Windows*
-- [ ] Windows build setup
-- [ ] Windows filesystem handling
+- [x] Windows build setup
+- [x] Windows filesystem handling
 - [ ] Windows read key handling
 - [ ] Windows env variable handling

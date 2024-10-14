@@ -5,10 +5,20 @@
 #ifdef _WIN32
 #define popen _popen
 #define pclose _pclose
+
+const char PATH_SEPARATOR = ';';
+
+#else
+
+const char PATH_SEPARATOR = ':';
+
 #endif
 
 // INPUT
 char get_ch();
+
+// executables
+void create_executable_name(string& searchName);
 
 // CD
 string get_home_dir();
