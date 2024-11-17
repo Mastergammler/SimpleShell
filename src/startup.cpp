@@ -16,9 +16,22 @@ void Init_Builtins()
 
 void Init_Path()
 {
+    // path for executables to search first in
+    // especially important for windows, because usually the system32 paths will
+    // always take precidence
+    const char* priorityPath = getenv("MGS_PATH");
+    if (priorityPath != NULL)
+    {
+        binPaths = split_all(priorityPath, PATH_SEPARATOR);
+    }
+
     const char* pathValue = getenv("PATH");
     if (pathValue != NULL)
     {
-        binPaths = split_all(pathValue, PATH_SEPARATOR);
+        vector<string> searchPaths = split_all(pathValue, PATH_SEPARATOR);
+        for (int i = 0; i < searchPaths.size(); i++)
+        {
+            binPaths.push_back(searchPaths[i]);
+        }
     }
 }

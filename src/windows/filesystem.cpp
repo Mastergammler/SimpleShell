@@ -46,8 +46,10 @@ bool file_exists(const char* path, const char* fileName)
     const char* extension = strrchr(completePath.c_str(), '.');
     if (extension)
     {
+        // TODO: refactor, actual list with executable files etc
         if (_stricmp(extension, ".exe") == 0 ||
-            _stricmp(extension, ".com") == 0)
+            _stricmp(extension, ".com") == 0 ||
+            _stricmp(extension, ".cmd") == 0)
             return true;
     }
 

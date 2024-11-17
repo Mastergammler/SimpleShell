@@ -5,6 +5,7 @@
 #include "types.h"
 
 #include "cwd.cpp"
+#include <cstdio>
 
 #ifdef _WIN32
 #include "windows/filesystem.cpp"
@@ -28,6 +29,9 @@ void HandleCommand(Command cmd)
     {
         string completeCmd = cmd.command_name + " " + cmd.tail;
         system(completeCmd.c_str());
+        // TEST: does this fix the lag issue?
+        fflush(stdout);
+        fflush(stderr);
     }
     else
     {
@@ -82,9 +86,9 @@ string read_input()
             break;
         }
         // handle escape sequences
-        // TEST: same for windows?
         // TODO: refactor, what to do functions (on_arrow_up_ress) etc
         // and when to trigger it
+        // UNIX Escape sequences
         else if (c == CH_ESC)
         {
             // termios returns a secape sequence instead of single characters
@@ -109,11 +113,15 @@ string read_input()
                         inputBuffer = get_next_entry(&Session);
                         cout << inputBuffer;
                         break;
-                    case ESCS_ARROW_RIGHT:
-                        // right: do nothing
-                        break;
                     case ESCS_ARROW_LEFT:
                         // left: do nothing
+                        inputBuffer += "<-";
+                        cout << "<-";
+                        break;
+                    case ESCS_ARROW_RIGHT:
+                        // right: do nothing
+                        inputBuffer += "->";
+                        cout << "->";
                         break;
                     // DEL has sequence 3~
                     case ESCS_DEL_1:
@@ -139,6 +147,27 @@ string read_input()
                                       completion);
                         break;
                 }
+            }
+        }
+        else if (c == 0 || c == (char)224)
+        {
+            c = get_ch();
+            switch (c)
+            {
+                // UP
+                case 72: break;
+                // DOWN
+                case 80: break;
+                // LEFT
+                case 75:
+                    inputBuffer += "<-";
+                    cout << "<-";
+                    break;
+                // RIGHT
+                case 77:
+                    inputBuffer += "->";
+                    cout << "->";
+                    break;
             }
         }
         // DEL & BACKSPACE
