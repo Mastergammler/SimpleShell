@@ -3,6 +3,7 @@
 SOURCE_FILE="src/main.cpp"
 OUTPUT_DIR=".build"
 export OUTPUT_FILE="$OUTPUT_DIR/mgsh"
+export WIN32=0
 
 OPTIONS="-std=c++03 -Wall -Wno-c++11-extensions"
 

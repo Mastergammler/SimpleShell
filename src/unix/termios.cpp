@@ -35,3 +35,42 @@ char get_ch()
 
     return buf;
 }
+
+ActionInput read_action(char c)
+{
+    if (c == ESCS_START)
+    {
+        // termios returns a secape sequence instead of single characters
+        char seq[3];
+        seq[0] = get_ch();
+        seq[1] = get_ch();
+        seq[2] = '\0';
+        if (seq[0] == '[')
+        {
+            switch (seq[1])
+            {
+                case ESCS_ARROW_UP: return ARROW_UP;
+                case ESCS_ARROW_DOWN: return ARROW_DOWN;
+                case ESCS_ARROW_LEFT: return ARROW_LEFT;
+                case ESCS_ARROW_RIGHT: return ARROW_RIGHT;
+                // DEL has sequence '3~'
+                case ESCS_DEL_1:
+                {
+                    char next = get_ch();
+                    if (next == ESCS_DEL_2)
+                    {
+                        return DEL;
+                    }
+                }
+                break;
+                case ESCS_SHIFT_TAB: return SHIFT_TAB;
+            }
+        }
+    }
+    else if (c == CH_DEL || c == CH_BACK)
+        return BACKSPACE;
+    else if (c == CH_TAB)
+        return TAB;
+
+    return NONE;
+}

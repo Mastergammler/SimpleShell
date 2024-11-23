@@ -73,10 +73,11 @@ struct SessionState
 
 const char HOME_SYMBOL = '~';
 
-const char CH_ESC = 27;
 const char CH_BACK = 8;
 const char CH_TAB = 9;
 const char CH_DEL = 127;
+
+const char ESCS_START = 27;
 const char ESCS_ARROW_UP = 'A';
 const char ESCS_ARROW_DOWN = 'B';
 const char ESCS_ARROW_LEFT = 'C';
@@ -87,3 +88,18 @@ const char ESCS_DEL_2 = '~';
 
 const char CH_NL_WIN = '\r';
 const char CH_NL_UNIX = '\n';
+
+enum ActionInput
+{
+    NONE,
+    ARROW_UP,
+    ARROW_DOWN,
+    ARROW_LEFT,
+    ARROW_RIGHT,
+    DEL,
+    TAB,
+    SHIFT_TAB,
+    BACKSPACE
+
+    // TODO: Ctrl + C ?
+};

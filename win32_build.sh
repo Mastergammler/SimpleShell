@@ -24,11 +24,12 @@ CPP_STD="-std=c++14"
 # -D_AMD64_ or -DX86_ = 1 is required for some windows headers
 MSVC_DEFAULTS="$TARGET $INCLUDES $CPP_STD -D_AMD64_=1"
 OPTIONS="-Wall -Wno-c++11-extensions"
+LINKED_LIBS="-luser32"
 
 
 T_START=$(date +%s%N)
 
-clang++ $SOURCE_FILE -o $OUTPUT_FILE $OPTIONS $SDK_LIBS $MSVC_DEFAULTS
+clang++ $SOURCE_FILE -o $OUTPUT_FILE $LINKED_LIBS $OPTIONS $SDK_LIBS $MSVC_DEFAULTS
 export COMPILE_STATUS=$?
 
 T_END=$(date +%s%N)

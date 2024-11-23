@@ -1,11 +1,11 @@
 #include "commands.cpp"
 #include "git.cpp"
+#include "input.h"
 #include "osi.h"
 #include "startup.cpp"
 #include "types.h"
 
 #include "cwd.cpp"
-#include <cstdio>
 
 #ifdef _WIN32
 #include "windows/filesystem.cpp"
@@ -71,6 +71,29 @@ void reset_all_completions()
     reset_completions(&Session.branch_completions);
 }
 
+void trigger_completion(string* inputBuffer, bool forward)
+{
+    Split inputSplit = split_next(*inputBuffer, ' ');
+
+    // TODO: there can be multiple git contexts where i also
+    // would have file search -> i have to differentiate those
+    // later
+    if (inputSplit.head == "git")
+    {
+        string completion = get_branch_completion(&Session.branch_completions,
+                                                  *inputBuffer,
+                                                  forward);
+        replace_input(&Session.branch_completions, inputBuffer, completion);
+    }
+    else
+    {
+        string completion = get_path_completion(&Session.path_completions,
+                                                *inputBuffer,
+                                                forward);
+        replace_input(&Session.path_completions, inputBuffer, completion);
+    }
+}
+
 string read_input()
 {
     string inputBuffer;
@@ -85,135 +108,54 @@ string read_input()
             cout << endl;
             break;
         }
-        // handle escape sequences
-        // TODO: refactor, what to do functions (on_arrow_up_ress) etc
-        // and when to trigger it
-        // UNIX Escape sequences
-        else if (c == CH_ESC)
-        {
-            // termios returns a secape sequence instead of single characters
-            char seq[3];
-            seq[0] = get_ch();
-            seq[1] = get_ch();
-            seq[2] = '\0';
 
-            if (seq[0] == '[')
-            {
-                switch (seq[1])
+        ActionInput action = read_action(c);
+        switch (action)
+        {
+            case ARROW_UP:
+                reset_all_completions();
+                clear_characters(inputBuffer.length());
+                inputBuffer = get_previous_entry(&Session);
+                cout << inputBuffer;
+                break;
+            case ARROW_DOWN:
+                reset_all_completions();
+                clear_characters(inputBuffer.length());
+                inputBuffer = get_next_entry(&Session);
+                cout << inputBuffer;
+                break;
+            case ARROW_LEFT:
+                // TODO: handle cursor movement
+                inputBuffer += "<-";
+                cout << "<-";
+                break;
+            case ARROW_RIGHT:
+                // TODO: handle cursor movement
+                inputBuffer += "->";
+                cout << "->";
+                break;
+            case BACKSPACE:
+                if (!inputBuffer.empty())
                 {
-                    case ESCS_ARROW_UP:
-                        reset_all_completions();
-                        clear_characters(inputBuffer.length());
-                        inputBuffer = get_previous_entry(&Session);
-                        cout << inputBuffer;
-                        break;
-                    case ESCS_ARROW_DOWN:
-                        reset_all_completions();
-                        clear_characters(inputBuffer.length());
-                        inputBuffer = get_next_entry(&Session);
-                        cout << inputBuffer;
-                        break;
-                    case ESCS_ARROW_LEFT:
-                        // left: do nothing
-                        inputBuffer += "<-";
-                        cout << "<-";
-                        break;
-                    case ESCS_ARROW_RIGHT:
-                        // right: do nothing
-                        inputBuffer += "->";
-                        cout << "->";
-                        break;
-                    // DEL has sequence 3~
-                    case ESCS_DEL_1:
-                    {
-                        char next = get_ch();
-                        if (next == ESCS_DEL_2)
-                        {
-                            reset_all_completions();
-                            clear_characters(inputBuffer.length());
-                            inputBuffer = "";
-                        }
-                    }
-                    break;
-                    case ESCS_SHIFT_TAB:
-                        // TODO: git branch completions
-
-                        // shift + tab
-                        string completion = get_path_completion(&Session.path_completions,
-                                                                inputBuffer,
-                                                                false);
-                        replace_input(&Session.path_completions,
-                                      &inputBuffer,
-                                      completion);
-                        break;
+                    // reset on input
+                    reset_all_completions();
+                    inputBuffer.erase(inputBuffer.length() - 1);
+                    clear_characters(1);
                 }
-            }
-        }
-        else if (c == 0 || c == (char)224)
-        {
-            c = get_ch();
-            switch (c)
-            {
-                // UP
-                case 72: break;
-                // DOWN
-                case 80: break;
-                // LEFT
-                case 75:
-                    inputBuffer += "<-";
-                    cout << "<-";
-                    break;
-                // RIGHT
-                case 77:
-                    inputBuffer += "->";
-                    cout << "->";
-                    break;
-            }
-        }
-        // DEL & BACKSPACE
-        else if (c == CH_DEL || c == CH_BACK)
-        {
-            if (!inputBuffer.empty())
-            {
+                break;
+            case DEL:
+                reset_all_completions();
+                clear_characters(inputBuffer.length());
+                inputBuffer = "";
+                break;
+            case TAB: trigger_completion(&inputBuffer, true); break;
+            case SHIFT_TAB: trigger_completion(&inputBuffer, false); break;
+            case NONE:
                 // reset on input
                 reset_all_completions();
-                inputBuffer.erase(inputBuffer.length() - 1);
-                clear_characters(1);
-            }
-        }
-        // TAB
-        else if (c == CH_TAB)
-        {
-            Split inputSplit = split_next(inputBuffer, ' ');
-
-            // TODO: there can be multiple git contexts where i also would have
-            // file search -> i have to differentiate those later
-            if (inputSplit.head == "git")
-            {
-                string completion = get_branch_completion(
-                                                        &Session.branch_completions,
-                                                        inputBuffer,
-                                                        true);
-                replace_input(&Session.branch_completions,
-                              &inputBuffer,
-                              completion);
-            }
-            else
-            {
-                string completion = get_path_completion(&Session.path_completions,
-                                                        inputBuffer,
-                                                        true);
-                replace_input(&Session.path_completions,
-                              &inputBuffer,
-                              completion);
-            }
-        }
-        else
-        {
-            // reset on input
-            reset_all_completions();
-            inputBuffer += c;
-            cout << c;
+                inputBuffer += c;
+                cout << c;
+                break;
         }
     }
 
