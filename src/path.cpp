@@ -24,10 +24,12 @@ PathSplit resolve_absolute_path(string pathInput)
         path.path = dirSplit.head;
         path.search_element = dirSplit.tail;
     }
-    // relative path check
-    // TODO: WIN - check for drive letter
+    // resloving working directory for relative paths
     else if (!starts_with(dirSplit.head, '/'))
     {
+        // this is only needed for unix, since we split paths on '/'
+        // so the first split result will be empty, if we have a absolute path
+        // which is not the case on windows, because of drive letters
         path.path = get_working_directory(false);
         path.search_element = dirSplit.head;
     }

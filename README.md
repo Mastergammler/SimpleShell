@@ -4,6 +4,12 @@
 - Simple shell that runs on windows and linux
 - Provide path auto complete for windows, including git completions
 
+**Env Vars**
+
+`$PATH` - used to search executables in
+`$MGS_PATH` - additional path, that takes precidence over variables defined in `$PATH` (is searched first)
+`$SHELL` - name or path of the executable to use for `.sh` files
+
 **Todo**
 
 *Autocomplete*
@@ -28,10 +34,10 @@
      - [x] Ctrl + C usage
 
 *Features*
-- [ ] Script execution delegation
-     - [ ] .ps1 files
-     - [ ] .bat files
-     - [ ] .sh
+- [x] Script execution delegation
+     - [x] .ps1 files
+     - [x] .bat files
+     - [x] .sh
 - [ ] Env var handling
   - [ ] Echo variables
   - [ ] Apply variables to current execution

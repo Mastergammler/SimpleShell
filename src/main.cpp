@@ -7,6 +7,7 @@
 #include "types.h"
 
 #include "cwd.cpp"
+#include "script.cpp"
 
 #ifdef _WIN32
 #include "windows/filesystem.cpp"
@@ -31,6 +32,14 @@ void HandleCommand(Command cmd)
         string completeCmd = cmd.command_name + " " + cmd.tail;
         system(completeCmd.c_str());
         // TEST: does this fix the lag issue?
+        fflush(stdout);
+        fflush(stderr);
+    }
+    else if (is_script(cmd.command_name))
+    {
+        PathSplit path = resolve_absolute_path(cmd.command_name);
+        string command = script_delegation_command(path);
+        system(command.c_str());
         fflush(stdout);
         fflush(stderr);
     }
