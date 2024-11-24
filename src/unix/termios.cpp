@@ -5,6 +5,11 @@ const int FD_STDIN = 0;
 const int FD_STDOUT = 1;
 const int FD_STDERR = 2;
 
+void Init_Console()
+{
+    // no special init required for unix
+}
+
 char get_ch()
 {
     char buf = 0;

@@ -1,4 +1,5 @@
 #include "commands.cpp"
+#include "commands.h"
 #include "git.cpp"
 #include "input.h"
 #include "osi.h"
@@ -150,6 +151,11 @@ string read_input()
                 break;
             case TAB: trigger_completion(&inputBuffer, true); break;
             case SHIFT_TAB: trigger_completion(&inputBuffer, false); break;
+            case CTRL_C:
+                clear_characters(inputBuffer.length());
+                inputBuffer = "exit";
+                cout << "exit";
+                break;
             case NONE:
                 // reset on input
                 reset_all_completions();
@@ -183,6 +189,7 @@ int main()
 
     Init_Builtins();
     Init_Path();
+    Init_Console();
 
     while (running)
     {

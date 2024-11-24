@@ -2,7 +2,7 @@
 
 **Goals**
 - Simple shell that runs on windows and linux
-- Provide path auto complete for windows
+- Provide path auto complete for windows, including git completions
 
 **Todo**
 
@@ -21,5 +21,18 @@
 *Windows*
 - [x] Windows build setup
 - [x] Windows filesystem handling
-- [ ] Windows read key handling
-- [ ] Windows env variable handling
+- [x] Windows read key handling
+- [x] Windows path variable handling
+- [ ] Key Issues to Fix
+     - [ ] Shift + Tab detection
+     - [x] Ctrl + C usage
+
+*Features*
+- [ ] Script execution delegation
+     - [ ] .ps1 files
+     - [ ] .bat files
+     - [ ] .sh
+- [ ] Env var handling
+  - [ ] Echo variables
+  - [ ] Apply variables to current execution
+

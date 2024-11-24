@@ -2,5 +2,5 @@
 
 #include "types.h"
 
-bool is_action_character(char c);
+void Init_Console();
 ActionInput read_action(char c);

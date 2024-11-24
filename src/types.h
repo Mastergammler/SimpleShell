@@ -99,7 +99,6 @@ enum ActionInput
     DEL,
     TAB,
     SHIFT_TAB,
-    BACKSPACE
-
-    // TODO: Ctrl + C ?
+    BACKSPACE,
+    CTRL_C
 };
