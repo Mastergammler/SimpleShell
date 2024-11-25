@@ -6,9 +6,9 @@
 
 **Env Vars**
 
-`$PATH` - used to search executables in
-`$MGS_PATH` - additional path, that takes precidence over variables defined in `$PATH` (is searched first)
-`$SHELL` - name or path of the executable to use for `.sh` files
+`$PATH` - used to search executables in  
+`$MGS_PATH` - additional path, that takes precidence over variables defined in `$PATH` (is searched first)  
+`$SHELL` - name or path of the executable to use for `.sh` files  
 
 **Todo**
 
@@ -29,8 +29,8 @@
 - [x] Windows filesystem handling
 - [x] Windows read key handling
 - [x] Windows path variable handling
-- [ ] Key Issues to Fix
-     - [ ] Shift + Tab detection
+- [x] Key Issues to Fix
+     - [x] Shift + Tab detection
      - [x] Ctrl + C usage
 
 *Features*

@@ -1,4 +1,7 @@
+#pragma once
+
 #include "parsing.cpp"
+#include "path.cpp"
 #include "types.h"
 
 bool is_script(string scriptPath)
@@ -11,8 +14,10 @@ bool is_script(string scriptPath)
     return false;
 }
 
-string script_delegation_command(PathSplit path)
+string script_delegation_command(Command cmd)
 {
+    PathSplit path = resolve_absolute_path(cmd.command_name);
+
     string cmdPrepend;
     if (ends_with(path.search_element, ".bat"))
     {
@@ -36,6 +41,6 @@ string script_delegation_command(PathSplit path)
     }
 
     string completeCmd = cmdPrepend + " " + path.path + "/" +
-                         path.search_element;
+                         path.search_element + " " + cmd.tail;
     return completeCmd;
 }

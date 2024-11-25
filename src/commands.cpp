@@ -1,5 +1,6 @@
 #include "osi.h"
 #include "path.cpp"
+#include "script.cpp"
 #include "types.h"
 
 void Builtin_Exit(Command cmd)
@@ -124,17 +125,13 @@ void Debug_PrintAscii(string s)
 
 void Debug_Test(Command cmd)
 {
-    cout << "\nRoot dir exists? " << dir_exists("/");
+    cout << "Input: " << cmd.tail << endl;
 
-    vector<string> entries = find_entries("/", "");
+    Split split = split_next(cmd.tail, ' ');
+    Command c = {split.head, split.tail};
+    string command = script_delegation_command(c);
 
-    for (int i = 0; i < entries.size(); i++)
-    {
-        cout << "\n  " << entries[i];
-    }
-
-    cout << endl;
-    // cout << "no test implemented";
+    cout << "Command: " << command << endl;
 }
 
 void NotFound(Command cmd)

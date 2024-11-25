@@ -24,6 +24,9 @@ char get_ch()
     return _getch();
 }
 
+// NOTE: this way of detecting key down is not supported under wine,
+//  and will always return false
+//  but when running on native windows this works as expected
 bool shift_is_down()
 {
     // requires user32.dll
@@ -49,7 +52,6 @@ ActionInput read_action(char c)
         return BACKSPACE;
     else if (c == CH_TAB)
     {
-        // TEST: does this work running on windows?
         if (shift_is_down())
         {
             return SHIFT_TAB;

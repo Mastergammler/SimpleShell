@@ -1,3 +1,5 @@
+#pragma once
+
 #include "osi.h"
 #include "parsing.cpp"
 #include "state.cpp"

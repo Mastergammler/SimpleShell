@@ -3,6 +3,7 @@
 #include "git.cpp"
 #include "input.h"
 #include "osi.h"
+#include "parsing.cpp"
 #include "startup.cpp"
 #include "types.h"
 
@@ -37,8 +38,7 @@ void HandleCommand(Command cmd)
     }
     else if (is_script(cmd.command_name))
     {
-        PathSplit path = resolve_absolute_path(cmd.command_name);
-        string command = script_delegation_command(path);
+        string command = script_delegation_command(cmd);
         system(command.c_str());
         fflush(stdout);
         fflush(stderr);
